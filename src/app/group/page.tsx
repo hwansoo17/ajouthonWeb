@@ -253,10 +253,11 @@ const HomePage: React.FC = () => {
   // ... (getGroups, fetchGroupActivities, fetchGroupMembers, handleSelectGroup, toggleSidebar, selectedGroupDetails, handleAddActivity, handleExtractReport 함수들은 기존 코드 유지) ...
   const getGroups = useCallback(async () => {
     try {
-      const response = await authApi.get<GroupInfo[]>('/groups');
+      const response = await authApi.get<GroupInfo[]>('/groups'); // GroupInfo 타입 사용
       setGroups(response.data);
       if (response.data && response.data.length > 0) {
         if (selectedGroupId === null) {
+          // selectedGroupId가 null일 때만 초기 선택
           setSelectedGroupId(response.data[0].groupId);
         }
       } else {
@@ -271,7 +272,14 @@ const HomePage: React.FC = () => {
       setCurrentGroupActivities([]);
       setCurrentGroupMembers([]);
     }
-  }, [selectedGroupId]);
+    // getGroups가 selectedGroupId에 의존하면, 그룹 가입 후 selectedGroupId가 바뀌지 않는 이상
+    // getGroups가 자동으로 다시 호출되지 않을 수 있습니다.
+    // 따라서 onGroupJoined를 통해 명시적으로 호출하는 것이 좋습니다.
+    // 의존성 배열에서 selectedGroupId를 제거하거나, 신중하게 관리해야 합니다.
+    // 여기서는 onGroupJoined를 위해 selectedGroupId 의존성을 잠시 제거하고,
+    // 필요시 다른 방식으로 초기 그룹 선택 로직을 조정하는 것을 고려합니다.
+    // 또는, getGroups를 onGroupJoined 콜백으로 그대로 사용합니다.
+  }, [selectedGroupId]); // 일단 유지, onGroupJoined에서 getGroups 직접 호출
 
   const fetchGroupActivities = useCallback(async (groupId: number) => {
     if (!groupId) return;
@@ -414,7 +422,7 @@ const HomePage: React.FC = () => {
         style={{
           position: 'fixed',
           top: '80px',
-          left: isSidebarOpen ? 'calc(320px + 20px)' : '20px',
+          left: isSidebarOpen ? 'calc(400px + 20px)' : '20px',
           zIndex: 101,
           padding: '12px',
           background: '#4f46e5',
@@ -433,7 +441,7 @@ const HomePage: React.FC = () => {
 
       <div
         style={{
-          width: isSidebarOpen ? '320px' : '0px',
+          width: isSidebarOpen ? '400px' : '0px',
           height: '100%',
           backgroundColor: '#23232a',
           overflowY: 'auto',
@@ -447,6 +455,7 @@ const HomePage: React.FC = () => {
             groups={groups}
             onSelectGroup={handleSelectGroup}
             selectedGroupId={selectedGroupId}
+            onGroupJoined={getGroups}
           />
         )}
       </div>

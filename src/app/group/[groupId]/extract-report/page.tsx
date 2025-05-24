@@ -207,7 +207,7 @@ export default function ExtractReportPage() {
           borderBottom: '1px solid #3f3f46',
           paddingBottom: '15px',
         }}>
-        보고서 추출 (모임 ID: {groupId})
+        보고서 추출
       </h1>
 
       {error && (

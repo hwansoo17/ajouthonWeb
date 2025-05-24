@@ -145,6 +145,7 @@ export const categoryMap: Record<string, string> = {
   STUDY: '스터디',
   SPORTS: '운동',
   CLUB: '동아리',
+  ETC: '기타',
 };
 
 export const roleMap: Record<string, string> = {

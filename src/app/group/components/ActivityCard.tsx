@@ -51,7 +51,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
           })}
         </span>
       </div>
-
       {/* 사진 갤러리 */}
       {photos && photos.length > 0 && (
         <div
@@ -86,16 +85,35 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
 
       {/* 내용 */}
       {content && (
-        <p
+        <div
           style={{
-            fontSize: '16px',
-            lineHeight: 1.7,
-            color: '#d4d4d8',
-            margin: '0',
-            whiteSpace: 'pre-wrap',
+            // 이 div는 제목(h4)과 내용 단락(p)을 위한 컨테이너입니다.
+            display: 'flex', // 제목과 내용을 수직으로 배치하기 위해 유지
+            width: '100%',
+            flexDirection: 'column',
+            // whiteSpace: 'pre-wrap', // 이 스타일은 실제 텍스트를 감싸는 요소로 이동
           }}>
-          {content}
-        </p>
+          <h4
+            style={{
+              fontSize: '18px',
+              color: '#a1a1aa',
+              marginBottom: '8px',
+              fontWeight: 500,
+            }}>
+            활동 내용:
+          </h4>
+          {/* 내용을 별도의 <p> 태그로 감싸고 여기에 스타일 적용 */}
+          <p
+            style={{
+              whiteSpace: 'pre-wrap', // 공백/줄바꿈 유지, 필요시 자동 줄바꿈
+              overflowWrap: 'break-word', // 긴 단어가 넘칠 경우 강제로 줄바꿈
+              margin: 0, // <p> 태그의 기본 마진 제거 (필요시)
+              color: '#f4f4f5', // 내용 텍스트 색상 (부모로부터 상속받지만 명시 가능)
+              lineHeight: 1.6, // 가독성을 위한 줄 간격 (선택 사항)
+            }}>
+            {content}
+          </p>
+        </div>
       )}
 
       {/* 참여자 목록 */}
