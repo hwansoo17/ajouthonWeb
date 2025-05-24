@@ -118,7 +118,7 @@ authApi.interceptors.response.use(
     const originalRequest = error.config;
 
     // 401 에러이고, 아직 재시도하지 않은 요청인 경우
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 403 && !originalRequest._retry) {
       console.warn(
         '[authApi Response Interceptor] 401 에러 발생. 토큰 재발급 시도.',
       );
@@ -239,7 +239,7 @@ formDataApi.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 403 && !originalRequest._retry) {
       console.warn(
         '[formDataApi Response Interceptor] 401 에러 발생. 토큰 재발급 시도.',
       );

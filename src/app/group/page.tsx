@@ -203,6 +203,7 @@ const HomePage: React.FC = () => {
     // 1. 최상위 div에 display:flex와 height: 100vh 적용
     <div
       style={{
+        width: '100%',
         display: 'flex',
         height: 'calc(100% - 60px)',
         background: '#18181b',

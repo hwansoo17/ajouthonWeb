@@ -14,19 +14,13 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const isLoading = useAuthStore((state) => state.isLoading); // 스토어의 로딩 상태 사용
   const router = useRouter();
   const pathname = usePathname(); // 현재 경로를 가져옴
 
   useEffect(() => {
     console.log(
-      `[AuthGuard] 현재 경로: ${pathname}, 인증 로딩중: ${isLoading}, 인증됨: ${isAuthenticated}`,
+      `[AuthGuard] 현재 경로: ${pathname}, 인증 로딩중: , 인증됨: ${isAuthenticated}`,
     );
-
-    if (isLoading) {
-      console.log('[AuthGuard] 인증 상태 확인 중... 대기');
-      return; // 인증 상태 확인이 완료될 때까지 아무것도 하지 않음
-    }
 
     const pathIsPublic = PUBLIC_PATHS.some((publicPath) =>
       pathname.startsWith(publicPath),
@@ -47,22 +41,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   }, [isAuthenticated]); // 의존성 배열에 상태값 및 라우터 객체 포함
 
   // 인증 상태 로딩 중일 때 보여줄 UI (선택 사항)
-  if (isLoading) {
-    console.log('[AuthGuard] 로딩 중 UI 표시');
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          background: '#18181b',
-          color: '#f4f4f5',
-        }}>
-        <p>사용자 정보를 불러오는 중입니다...</p>
-      </div>
-    );
-  }
 
   // 인증되지 않았고, 비공개 경로이며, 리다이렉션이 아직 실행되기 전 (매우 짧은 순간)
   if (
