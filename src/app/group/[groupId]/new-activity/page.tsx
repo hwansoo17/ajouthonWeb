@@ -128,7 +128,7 @@ export default function NewActivityPage() {
         maxWidth: '700px',
         margin: 'auto',
       }}>
-      <h1>새 활동 추가 (모임 ID: {groupId})</h1>
+      <h1>새 활동 추가</h1>
       <form onSubmit={handleSubmit}>
         {/* 제목 */}
         <div style={{ marginBottom: '20px' }}>
