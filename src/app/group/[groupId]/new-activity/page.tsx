@@ -1,10 +1,10 @@
-// app/group/[groupId]/new-activity/page.tsx (예시)
+// app/group/[groupId]/new-activity/page.tsx
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import useActivityFormDataStore from '@/store/activityFormDataStore'; // 스토어 임포트
-import { authApi } from '@/api/api'; // API 인스턴스
+import React, { useState } from 'react';
+import useActivityFormDataStore from '@/store/activityFormDataStore';
+import { authApi } from '@/api/api';
 
 // Member 타입 (HomePage와 동일하게 유지 또는 공통 파일에서 import)
 type Member = {
@@ -14,12 +14,17 @@ type Member = {
   role: string;
 };
 
+// Presigned URL 응답 객체 타입
+interface PresignedUrlResponseItem {
+  fileName: string; // 원본 파일명
+  uploadUrl: string; // S3 업로드용 presigned URL
+}
+
 export default function NewActivityPage() {
   const router = useRouter();
   const params = useParams();
-  const groupId = params.groupId as string; // URL에서 groupId 가져오기
+  const groupId = params.groupId as string;
 
-  // 스토어에서 멤버 목록과 데이터 클리어 함수 가져오기
   const { membersForSelection } = useActivityFormDataStore();
 
   const [title, setTitle] = useState('');
@@ -27,8 +32,23 @@ export default function NewActivityPage() {
   const [selectedParticipantIds, setSelectedParticipantIds] = useState<
     string[]
   >([]);
-  // 파일 관련 상태 및 핸들러는 복잡하므로 여기서는 개념만 설명 (실제 구현 필요)
-  const [fileNames, setFileNames] = useState<string[]>([]); // 예: 업로드 후 파일명/경로 목록
+  const [selectedLocalFiles, setSelectedLocalFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      // 기존 미리보기 URL 해제
+      filePreviews.forEach((url) => URL.revokeObjectURL(url));
+      setSelectedLocalFiles(filesArray);
+      setFilePreviews(
+        filesArray
+          .filter((file) => file.type.startsWith('image/'))
+          .map((file) => URL.createObjectURL(file)),
+      );
+    }
+  };
 
   const handleParticipantToggle = (memberId: string) => {
     setSelectedParticipantIds((prev) =>
@@ -45,24 +65,58 @@ export default function NewActivityPage() {
       return;
     }
 
+    // 1) 게시글 + 파일명 리스트 요청
     const requestBody = {
       title,
       content,
-      fileNames, // 실제 파일 업로드 로직 후 설정된 파일명/경로 배열
-      participantIds: selectedParticipantIds.map((id) => parseInt(id, 10)), // 문자열 ID를 숫자로 변환
+      fileNames: selectedLocalFiles.map((f) => f.name),
+      participantIds: selectedParticipantIds.map((id) => parseInt(id, 10)),
     };
 
-    console.log('Submitting new activity:', requestBody);
-
     try {
-      await authApi.post(`/groups/${groupId}/posts`, requestBody);
-      alert('활동이 성공적으로 등록되었습니다.');
-      // 성공 후 이전 페이지(활동 피드)로 이동하거나, 해당 그룹 상세 페이지로 이동
-      router.back(); // 간단하게 뒤로가기
-      // 또는 router.push(`/`); // HomePage (활동 피드)로 이동
+      setIsUploading(true);
+      const res = await authApi.post<PresignedUrlResponseItem[]>(
+        `/groups/${groupId}/posts`,
+        requestBody,
+      );
+
+      if (res.status === 200) {
+        const presignedList = res.data;
+
+        // 2) presigned URL로 파일 업로드
+        await Promise.all(
+          presignedList.map(async (item) => {
+            const file = selectedLocalFiles.find(
+              (f) => f.name === item.fileName,
+            );
+            if (!file) {
+              console.warn(`파일 매칭 실패: ${item.fileName}`);
+              return;
+            }
+            console.log(file);
+            const uploadRes = await fetch(item.uploadUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            });
+            if (!uploadRes.ok) {
+              throw new Error(
+                `${item.fileName} 업로드 실패: ${uploadRes.statusText}`,
+              );
+            }
+          }),
+        );
+
+        alert('활동이 성공적으로 등록되었습니다.');
+        router.back();
+      } else {
+        throw new Error(`서버 응답 오류: ${res.status}`);
+      }
     } catch (error) {
-      console.error('활동 등록 실패:', error);
+      console.error('활동 등록/업로드 중 오류:', error);
       alert('활동 등록 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -76,6 +130,7 @@ export default function NewActivityPage() {
       }}>
       <h1>새 활동 추가 (모임 ID: {groupId})</h1>
       <form onSubmit={handleSubmit}>
+        {/* 제목 */}
         <div style={{ marginBottom: '20px' }}>
           <label
             htmlFor="title"
@@ -83,14 +138,21 @@ export default function NewActivityPage() {
             제목
           </label>
           <input
-            type="text"
             id="title"
+            type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            style={{ width: '100%', padding: '10px', color: 'black' }}
+            style={{
+              width: '100%',
+              padding: '10px',
+              color: 'black',
+              borderRadius: '4px',
+            }}
           />
         </div>
+
+        {/* 내용 */}
         <div style={{ marginBottom: '20px' }}>
           <label
             htmlFor="content"
@@ -103,34 +165,68 @@ export default function NewActivityPage() {
             onChange={(e) => setContent(e.target.value)}
             required
             rows={5}
-            style={{ width: '100%', padding: '10px', color: 'black' }}
+            style={{
+              width: '100%',
+              padding: '10px',
+              color: 'black',
+              borderRadius: '4px',
+            }}
           />
         </div>
 
-        {/* 파일 업로드 관련 UI (실제 구현 필요) */}
+        {/* 파일 업로드 */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px' }}>
-            파일 첨부
+          <label
+            htmlFor="fileUpload"
+            style={{ display: 'block', marginBottom: '8px' }}>
+            사진/파일 첨부
           </label>
-          {/* <input type="file" multiple onChange={handleFileChange} /> */}
-          <p style={{ fontSize: '12px', color: '#aaa' }}>
-            {' '}
-            (실제 파일 업로드 UI 구현 필요)
-          </p>
-          {/* 선택된 파일명 표시: {fileNames.join(', ')} */}
+          <input
+            id="fileUpload"
+            type="file"
+            multiple
+            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp"
+            onChange={handleFileChange}
+            style={{ display: 'block', marginBottom: '10px' }}
+          />
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {filePreviews.map((url, idx) => (
+              <img
+                key={idx}
+                src={url}
+                alt={`미리보기 ${idx + 1}`}
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  objectFit: 'cover',
+                  borderRadius: '4px',
+                  border: '1px solid #555',
+                }}
+              />
+            ))}
+          </div>
+          <ul>
+            {selectedLocalFiles
+              .filter((f) => !f.type.startsWith('image/'))
+              .map((f, idx) => (
+                <li key={idx} style={{ fontSize: '12px', color: '#ccc' }}>
+                  {f.name}
+                </li>
+              ))}
+          </ul>
         </div>
 
-        {/* 참여자 선택 (태그 형식 UI) */}
+        {/* 참여자 선택 */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px' }}>
             참여자 선택
           </label>
           {membersForSelection.length > 0 ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {membersForSelection.map((member) => (
+              {membersForSelection.map((member: Member) => (
                 <button
-                  type="button"
                   key={member.memberId}
+                  type="button"
                   onClick={() => handleParticipantToggle(member.memberId)}
                   style={{
                     padding: '8px 12px',
@@ -147,22 +243,26 @@ export default function NewActivityPage() {
               ))}
             </div>
           ) : (
-            <p>선택할 수 있는 멤버가 없거나 불러오는 중입니다.</p>
+            <p>
+              선택할 수 있는 멤버가 없거나, 멤버 목록을 불러오지 못했습니다.
+            </p>
           )}
         </div>
 
+        {/* 제출 버튼 */}
         <button
           type="submit"
+          disabled={isUploading}
           style={{
             padding: '12px 20px',
-            background: '#6366f1',
+            background: isUploading ? '#555' : '#6366f1',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer',
+            cursor: isUploading ? 'not-allowed' : 'pointer',
             fontSize: '16px',
           }}>
-          활동 등록
+          {isUploading ? '업로드 중...' : '활동 등록'}
         </button>
       </form>
     </div>
