@@ -22,7 +22,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px', // 내부 요소 간 간격
-        maxWidth: '700px', // 카드 최대 너비 (인스타그램 피드 느낌)
+        width: '100%',
         margin: '0 auto', // 중앙 정렬 (피드가 카드보다 넓을 경우)
       }}>
       {/* 카드 헤더: 제목과 날짜 */}

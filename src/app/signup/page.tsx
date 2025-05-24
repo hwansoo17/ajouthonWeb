@@ -30,7 +30,7 @@ const SignUpPage: React.FC = () => {
       return;
     }
     try {
-      const response = await api.post('auth/signUp', {
+      const response = await api.post('auth/signup', {
         email: form.memberId,
         password: form.password,
         name: form.name,
