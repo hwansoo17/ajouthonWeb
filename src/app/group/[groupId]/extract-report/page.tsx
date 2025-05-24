@@ -33,7 +33,7 @@ export default function ExtractReportPage() {
     setError(null);
     try {
       const response = await authApi.get<ApiActivity[]>(`/groups/${groupId}`);
-      setActivities(response.data.reverse());
+      setActivities(response.data);
     } catch (err) {
       console.error('Failed to fetch activities:', err);
       setError('활동 목록을 불러오는 데 실패했습니다.');

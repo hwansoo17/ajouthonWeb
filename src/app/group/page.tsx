@@ -298,7 +298,7 @@ const HomePage: React.FC = () => {
         })),
         createdAt: activity.createdAt,
       }));
-      setCurrentGroupActivities(mappedActivities);
+      setCurrentGroupActivities(mappedActivities.reverse());
     } catch (error) {
       console.error(
         `그룹 ${groupId}의 활동 정보를 가져오는 데 실패했습니다:`,
