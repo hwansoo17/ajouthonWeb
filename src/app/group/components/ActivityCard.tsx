@@ -8,7 +8,7 @@ interface ActivityCardProps {
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
-  const { title, date, content, photos, participants } = activity;
+  const { title, createdAt, content, photos, participants } = activity;
 
   return (
     <div
@@ -44,7 +44,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
           {title}
         </h3>
         <span style={{ fontSize: '14px', color: '#a1a1aa' }}>
-          {new Date(date).toLocaleDateString('ko-KR', {
+          {new Date(createdAt).toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',

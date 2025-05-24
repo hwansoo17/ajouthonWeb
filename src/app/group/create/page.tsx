@@ -2,20 +2,33 @@
 import React, { useState } from 'react';
 import { FormInput } from '@/components/FormInput';
 import { Button } from '@/components/Button';
+import { authApi } from '@/api/api';
+import { useRouter } from 'next/navigation';
 
 const categories = [
-  { label: '운동', value: 'exercise' },
-  { label: '스터디', value: 'study' },
-  { label: '동아리', value: 'club' },
+  { label: '운동', value: 'SPORTS' },
+  { label: '스터디', value: 'STUDY' },
+  { label: '동아리', value: 'CLUB' },
+  { label: '기타', value: 'ETC' },
 ];
 
 export default function MeetCreatePage() {
   const [name, setName] = useState('');
   const [category, setCategory] = useState(categories[0].value);
-
-  const handleCreate = () => {
-    // TODO: 모임 생성 로직 추가
-    alert(`모임 이름: ${name}\n카테고리: ${category}`);
+  const router = useRouter();
+  const handleCreate = async () => {
+    try {
+      const response = await authApi.post('/groups', {
+        name,
+        category,
+      });
+      console.log('모임 생성 성공:', response.data);
+      alert(`모임 이름: ${name}\n카테고리: ${category}`);
+      router.push('/group'); // 모임 생성 후 메인 페이지로 이동
+    } catch (error) {
+      console.error('모임 생성 실패:', error);
+      alert('모임 생성에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (

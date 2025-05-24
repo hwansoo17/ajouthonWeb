@@ -19,7 +19,7 @@ const GroupSidebar: React.FC<GroupSidebarProps> = ({
       style={{
         width: '320px', // 사이드바 너비 고정
         minWidth: '320px',
-        height: '100vh', // 전체 화면 높이
+        height: '100%', // 전체 화면 높이
         background: '#23232a',
         boxShadow: '4px 0 24px rgba(0,0,0,0.24)', // 오른쪽에 그림자
         padding: '40px 32px',
