@@ -1,5 +1,6 @@
 'use client';
 
+import { api } from '@/api/api';
 import { Button } from '@/components/Button';
 import { FormInput } from '@/components/FormInput';
 import useAuthStore from '@/store/authStore';
@@ -14,15 +15,20 @@ export default function LoginPage() {
 
   const { setLogin } = useAuthStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError('이메일과 비밀번호를 입력하세요.');
-      return;
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post('auth/signin', {
+        email,
+        password,
+      });
+      console.log('로그인 성공:', response.data);
+      setLogin(true);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      router.push('/');
+    } catch (err) {
+      console.error('로그인 실패:', err);
     }
-    setError('');
-    setLogin(true, 'dummyAccessToken', 'dummyUserId');
-    router.push('/');
   };
 
   const handleGoToSignup = () => {

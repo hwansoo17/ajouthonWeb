@@ -2,9 +2,11 @@
 import { api } from '@/api/api';
 import { Button } from '@/components/Button';
 import { FormInput } from '@/components/FormInput';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const SignUpPage: React.FC = () => {
+  const router = useRouter();
   const [form, setForm] = useState({
     memberId: '',
     password: '',
@@ -28,7 +30,7 @@ const SignUpPage: React.FC = () => {
       return;
     }
     try {
-      const response = await api.post('auth/signup', {
+      const response = await api.post('auth/signUp', {
         email: form.memberId,
         password: form.password,
         name: form.name,
@@ -37,10 +39,12 @@ const SignUpPage: React.FC = () => {
         phoneNumber: form.phone,
       });
       console.log('회원가입 성공:', response.data);
+      alert('회원가입이 완료되었습니다!');
+      router.push('/login'); // 회원가입 후 로그인 페이지로 이동
     } catch (err) {
       console.error('회원가입 실패:', err);
+      alert('서버 에러');
     }
-    alert('회원가입이 완료되었습니다!');
   };
 
   return (

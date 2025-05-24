@@ -18,12 +18,7 @@ interface AuthStore {
     userId: string | null,
   ) => void;
 
-  setLogin: (
-    isAuthenticated: boolean,
-    accessToken: string | null,
-
-    userId: string | null,
-  ) => void;
+  setLogin: (isAuthenticated: boolean) => void;
 
   setLogout: (
     isAuthenticated: boolean,
@@ -46,8 +41,8 @@ const useAuthStore = create<AuthStore>((set) => ({
     set({ isAuthenticated, isAutoLoginLoading, accessToken, userId });
   },
 
-  setLogin: (isAuthenticated, accessToken, userId) => {
-    set({ isAuthenticated, accessToken, userId });
+  setLogin: (isAuthenticated) => {
+    set({ isAuthenticated });
   },
 
   setLogout: (isAuthenticated, accessToken, userId) => {

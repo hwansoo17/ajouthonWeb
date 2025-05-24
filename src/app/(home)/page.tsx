@@ -55,11 +55,12 @@ export default function ProtectedPage() {
   }
 
   // 모임 데이터가 있을 때: 기존 페이지 내용
-  return (
-    <div>
-      <h1>보호된 페이지</h1>
-      <p>이 페이지는 로그인한 사용자만 볼 수 있습니다.</p>
-      {/* 여기에 해당 페이지의 실제 컨텐츠를 구현합니다. */}
-    </div>
-  );
+  if (group.length > 0) {
+    return (
+      <div>
+        <h1>환영합니다!</h1>
+        <InviteCodeInput />
+      </div>
+    );
+  }
 }
