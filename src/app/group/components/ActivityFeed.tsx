@@ -36,17 +36,6 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
         gap: '32px',
         padding: '20px 0',
       }}>
-      <h2
-        style={{
-          color: '#f4f4f5',
-          marginBottom: '24px',
-          paddingBottom: '16px',
-          borderBottom: '2px solid #3f3f46',
-          textAlign: 'center',
-          fontSize: '26px',
-        }}>
-        {groupName} 활동 피드
-      </h2>
       {activities.map((activity) => (
         <ActivityCard key={activity.activityId} activity={activity} />
       ))}

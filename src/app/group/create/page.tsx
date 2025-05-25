@@ -6,9 +6,9 @@ import { authApi } from '@/api/api';
 import { useRouter } from 'next/navigation';
 
 const categories = [
-  { label: '운동', value: 'SPORTS' },
+  { label: '2025 운동크루', value: 'SPORTS' },
   { label: '스터디', value: 'STUDY' },
-  { label: '동아리', value: 'CLUB' },
+  { label: '소학회', value: 'CLUB' },
   { label: '기타', value: 'ETC' },
 ];
 

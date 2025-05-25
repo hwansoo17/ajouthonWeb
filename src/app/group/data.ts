@@ -143,8 +143,8 @@ export const groupsWithActivitiesData: GroupWithActivities[] = [
 
 export const categoryMap: Record<string, string> = {
   STUDY: '스터디',
-  SPORTS: '운동',
-  CLUB: '동아리',
+  SPORTS: '2025 운동크루',
+  CLUB: '소학회',
   ETC: '기타',
 };
 

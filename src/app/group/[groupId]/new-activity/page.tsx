@@ -145,9 +145,13 @@ export default function NewActivityPage() {
             required
             style={{
               width: '100%',
-              padding: '10px',
-              color: 'black',
-              borderRadius: '4px',
+              padding: '10px 12px',
+              marginTop: 4,
+              borderRadius: '6px',
+              border: '1px solid #27272a',
+              background: '#23232a',
+              color: '#f4f4f5',
+              outline: 'none',
             }}
           />
         </div>
@@ -167,9 +171,13 @@ export default function NewActivityPage() {
             rows={5}
             style={{
               width: '100%',
-              padding: '10px',
-              color: 'black',
-              borderRadius: '4px',
+              padding: '10px 12px',
+              marginTop: 4,
+              borderRadius: '6px',
+              border: '1px solid #27272a',
+              background: '#23232a',
+              color: '#f4f4f5',
+              outline: 'none',
             }}
           />
         </div>
